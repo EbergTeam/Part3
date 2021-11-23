@@ -14,8 +14,10 @@ namespace WebApplication1
     {
         public void Configure(IApplicationBuilder app)
         {
-            // вызываем метод расширения и передаем образец токена для сравнения
-            app.UseToken("1234");
+            app.UseDefaultFiles(); // отправка статических веб-страниц по умолчанию без обращения к ним по полному пути
+                                   // в этом случае при отправке запроса к корню веб-приложения типа http://localhost:xxxx/
+                                   // приложение будет искать в папке wwwroot следующие файлы default.html, index.html
+            app.UseStaticFiles();  // чтобы приложение могло бы отдавать статические файлы клиенту
 
             app.Run(async (context) =>
             {

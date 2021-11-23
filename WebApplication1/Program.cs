@@ -21,6 +21,7 @@ namespace WebApplication1
                 .ConfigureWebHostDefaults(webBuilder =>
                 {
                     webBuilder.UseStartup<Startup>(); // Указывает стартовый класс приложения, с которого и будет начинаться обработка входящих запросов
+                    //.UseWebRoot("static"); // Если необходимо брать статические файлы не из стндартного wwwroot, а свою папку static
                 });
     }
 }
