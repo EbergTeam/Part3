@@ -7,22 +7,38 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using WebApplication1.Services;
 
 namespace WebApplication1
 {
     public class Startup
     {
-        public void Configure(IApplicationBuilder app)
+        public void ConfigureServices(IServiceCollection services)
         {
-            app.UseDefaultFiles(); // отправка статических веб-страниц по умолчанию без обращения к ним по полному пути
-                                   // в этом случае при отправке запроса к корню веб-приложения типа http://localhost:xxxx/
-                                   // приложение будет искать в папке wwwroot следующие файлы default.html, index.html
-            app.UseStaticFiles();  // чтобы приложение могло бы отдавать статические файлы клиенту
+            services.AddTransient<IMessageSender, SmsMessageSender>();
+            services.AddTransient<MessageService>();
+            // extension method for IServiceCollection
+            services.AddTimeService();
+        }
+        
+        public void Configure(IApplicationBuilder app, IMessageSender ims, TimeService ts, MessageService ms) 
+        {
+            // 1. Add service to the parametr of the Invoke method of the middleware component
+            app.UseMiddleware<SendMessageMiddleware>();
 
+            // 2. Add service to the constructor of the class (except Startup)
+            app.Use(async (context, next) =>
+            {
+                await context.Response.WriteAsync("2. It work!!! " + ms.Send() + "\n");
+                await next.Invoke();
+            });
+
+            // 3.Add service to the parametr of the Configure method of the Startup class
             app.Run(async (context) =>
             {
-                await context.Response.WriteAsync("It work!!!");
+                await context.Response.WriteAsync("3. It work!!! " + ims.Send() + ". Time: " + ts.GetTime());
             });
+            
         }
     }
 }
